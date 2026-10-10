@@ -1,0 +1,101 @@
+name: Fern Client Release Pipeline
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      release_channel:
+        description: 'Release Channel'
+        required: true
+        default: 'beta'
+        type: choice
+        options:
+          - 'beta'
+          - 'stable'
+      confirm_publication:
+        description: 'Confirm publication approval (type YES)'
+        required: true
+        default: 'NO'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-package:
+    name: Build & Package Windows Release
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run automated test suite
+        run: npm test
+
+      - name: Compile production artifacts
+        run: npm run build
+
+      - name: Generate Windows release package
+        run: npm run release
+
+      - name: Verify checksum integrity
+        shell: pwsh
+        run: |
+          Get-FileHash -Algorithm SHA256 (Get-ChildItem release/*.zip) | Format-List
+          Get-Content release/SHA256SUMS.txt
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: fern-client-release-${{ github.ref_name }}
+          path: release/
+          retention-days: 14
+
+  publish-release:
+    name: Publish GitHub Release
+    needs: [build-and-package]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v') || github.event.inputs.confirm_publication == 'YES'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: fern-client-release-${{ github.ref_name }}
+          path: release-artifacts
+
+      - name: Determine channel and prerelease flag
+        id: channel
+        run: |
+          TAG="${{ github.ref_name }}"
+          if [[ "$TAG" == *"beta"* ]] || [[ "${{ github.event.inputs.release_channel }}" == "beta" ]]; then
+            echo "is_prerelease=true" >> $GITHUB_OUTPUT
+            echo "channel_name=Beta" >> $GITHUB_OUTPUT
+          else
+            echo "is_prerelease=false" >> $GITHUB_OUTPUT
+            echo "channel_name=Stable" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Fern Client ${{ github.ref_name }} (${{ steps.channel.outputs.channel_name }})"
+          prerelease: ${{ steps.channel.outputs.is_prerelease == 'true' }}
+          draft: false
+          files: |
+            release-artifacts/*.zip
+            release-artifacts/SHA256SUMS.txt
+            release-artifacts/*.json
+          generate_release_notes: true

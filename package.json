@@ -1,0 +1,51 @@
+{
+  "name": "fern-client",
+  "version": "1.0.0",
+  "description": "Fern Client - Modern Minecraft Java Edition Launcher and Client",
+  "type": "module",
+  "main": "dist-electron/main.cjs",
+  "scripts": {
+    "build:main": "esbuild launcher/src/main.ts --bundle --platform=node --target=node22 --format=cjs --outfile=dist-electron/main.cjs --external:electron",
+    "build:preload": "esbuild launcher/src/preload.ts --bundle --platform=node --target=node22 --format=cjs --outfile=dist-electron/preload.cjs --external:electron",
+    "build:ui": "vite build",
+    "build:website": "vite build --config website/vite.config.ts",
+    "dev:website": "vite --config website/vite.config.ts",
+    "build:backend": "npm --prefix backend run build",
+    "build": "npm run build:main && npm run build:preload && npm run build:ui && npm run build:backend",
+    "package:win": "node packaging/build-distribution.js",
+    "release": "npm run build && npm run package:win && node -e \"import('./scripts/release-pipeline.ts').then(m => new m.ReleasePipeline().buildReleaseManifest('1.0.0', './release'))\"",
+    "verify:docs": "node -e \"import('./scripts/verify-documentation-links.ts').then(m => m.verifyDocumentationLinks())\"",
+    "dev:ui": "vite",
+    "start": "electron dist-electron/main.cjs",
+    "dev": "npm run build:main && npm run build:preload && npm run build:ui && electron dist-electron/main.cjs",
+    "start:backend": "npm --prefix backend run start",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --config vitest.config.ts"
+  },
+  "keywords": [
+    "minecraft",
+    "launcher",
+    "client",
+    "fern-client",
+    "fabric",
+    "forge"
+  ],
+  "author": "Fern Client Team",
+  "license": "MIT",
+  "dependencies": {
+    "lucide-react": "^1.53.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.4",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "electron": "^44.7.0",
+    "esbuild": "^0.28.2",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4",
+    "vitest": "^5.0.3"
+  }
+}

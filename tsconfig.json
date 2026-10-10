@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "jsx": "react-jsx",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "strictPropertyInitialization": false,
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "@shared/*": ["./shared/*"],
+      "@launcher/*": ["./launcher/src/*"]
+    }
+  },
+  "include": [
+    "launcher/src/**/*",
+    "shared/**/*",
+    "client/src/**/*",
+    "tests/**/*"
+  ]
+}

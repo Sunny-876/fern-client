@@ -1,0 +1,320 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model FernUser {
+  id                String                 @id @default(uuid())
+  email             String                 @unique
+  username          String                 @unique
+  isEmailVerified   Boolean                @default(false)
+  isActive          Boolean                @default(true)
+  role              String                 @default("USER")
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+
+  credential        UserCredential?
+  sessions          Session[]
+  profile           UserProfile?
+  privacy           PrivacySettings?
+  presence          Presence?
+  cloudConfig       UserCloudConfiguration?
+
+  emailTokens       EmailVerificationToken[]
+  passwordTokens    PasswordResetToken[]
+
+  sentRequests      FriendRequest[]        @relation("SentRequests")
+  receivedRequests  FriendRequest[]        @relation("ReceivedRequests")
+
+  friends           Friend[]               @relation("UserFriends")
+  friendedBy        Friend[]               @relation("FriendUsers")
+
+  blockedUsers      BlockEntry[]           @relation("BlockerUsers")
+  blockedBy         BlockEntry[]           @relation("BlockedUsers")
+
+  cosmetics         CosmeticOwnership[]
+  equippedCosmetics EquippedCosmetic[]
+  syncRevisions     SyncRevision[]
+  auditEvents       AuditEvent[]
+  notifications     Notification[]
+
+  @@map("fern_users")
+}
+
+model UserCredential {
+  id                  String   @id @default(uuid())
+  userId              String   @unique
+  passwordHash        String
+  passwordAlgo        String   @default("argon2id")
+  failedLoginAttempts Int      @default(0)
+  lockedUntil         DateTime?
+  lastPasswordChange  DateTime @default(now())
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user                FernUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_credentials")
+}
+
+model Session {
+  id               String   @id @default(uuid())
+  userId           String
+  sessionTokenHash String   @unique
+  refreshTokenHash String?  @unique
+  deviceInfo       String?
+  ipAddress        String?
+  lastActiveAt     DateTime @default(now())
+  expiresAt        DateTime
+  isRevoked        Boolean  @default(false)
+  createdAt        DateTime @default(now())
+
+  user             FernUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("user_sessions")
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(uuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  user      FernUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("email_verification_tokens")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  user      FernUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("password_reset_tokens")
+}
+
+model UserProfile {
+  id                       String   @id @default(uuid())
+  userId                   String   @unique
+  displayName              String
+  avatar                   String   @default("avatar_fern_emerald")
+  bio                      String?
+  favoriteMinecraftVersion String?
+  favoriteInstallation    String?
+  badgesJson               String   @default("[]")
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  user                     FernUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
+}
+
+model PrivacySettings {
+  id                   String   @id @default(uuid())
+  userId               String   @unique
+  allowFriendRequests  Boolean  @default(true)
+  allowProfileDiscovery Boolean @default(true)
+  showOnlineStatus     Boolean  @default(true)
+  showPlayingStatus    Boolean  @default(true)
+  showMinecraftVersion Boolean  @default(true)
+  showInstallationName Boolean  @default(false)
+  allowProfileViewing  String   @default("friends_only") // "everyone" | "friends_only" | "nobody"
+  invisibleMode        Boolean  @default(false)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  user                 FernUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("privacy_settings")
+}
+
+model Friend {
+  id           String   @id @default(uuid())
+  userId       String
+  friendUserId String
+  status       String   @default("accepted")
+  since        DateTime @default(now())
+
+  user         FernUser @relation("UserFriends", fields: [userId], references: [id], onDelete: Cascade)
+  friend       FernUser @relation("FriendUsers", fields: [friendUserId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, friendUserId])
+  @@index([userId])
+  @@index([friendUserId])
+  @@map("friends")
+}
+
+model FriendRequest {
+  id         String   @id @default(uuid())
+  fromUserId String
+  toUserId   String
+  status     String   @default("pending") // pending | accepted | declined | cancelled
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  fromUser   FernUser @relation("SentRequests", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUser     FernUser @relation("ReceivedRequests", fields: [toUserId], references: [id], onDelete: Cascade)
+
+  @@index([fromUserId])
+  @@index([toUserId])
+  @@map("friend_requests")
+}
+
+model BlockEntry {
+  id        String   @id @default(uuid())
+  blockerId String
+  blockedId String
+  reason    String?
+  createdAt DateTime @default(now())
+
+  blocker   FernUser @relation("BlockerUsers", fields: [blockerId], references: [id], onDelete: Cascade)
+  blocked   FernUser @relation("BlockedUsers", fields: [blockedId], references: [id], onDelete: Cascade)
+
+  @@unique([blockerId, blockedId])
+  @@index([blockerId])
+  @@index([blockedId])
+  @@map("block_entries")
+}
+
+model Presence {
+  id               String    @id @default(uuid())
+  userId           String    @unique
+  state            String    @default("offline") // offline | online | in_launcher | playing_minecraft | invisible
+  minecraftVersion String?
+  installationName String?
+  sessionStartTime DateTime?
+  lastSeen         DateTime  @default(now())
+  socketId         String?
+
+  user             FernUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_presences")
+}
+
+model CosmeticDefinition {
+  id          String   @id // e.g. "cape_fern_emerald"
+  name        String
+  category    String   // cape | cloak | hat | accessory | emote
+  rarity      String   // common | uncommon | rare | epic | legendary
+  description String
+  assetPath   String
+  previewUrl  String
+  modelType   String   @default("both") // default | slim | both
+  animated    Boolean  @default(false)
+  isStarter   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  owners      CosmeticOwnership[]
+
+  @@map("cosmetic_definitions")
+}
+
+model CosmeticOwnership {
+  id          String             @id @default(uuid())
+  userId      String
+  cosmeticId  String
+  unlockedAt  DateTime           @default(now())
+  isFavorite  Boolean            @default(false)
+
+  user        FernUser           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cosmetic    CosmeticDefinition @relation(fields: [cosmeticId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, cosmeticId])
+  @@index([userId])
+  @@map("cosmetic_ownerships")
+}
+
+model EquippedCosmetic {
+  id         String   @id @default(uuid())
+  userId     String
+  category   String   // cape | cloak | hat | accessory | emote
+  cosmeticId String
+  updatedAt  DateTime @updatedAt
+
+  user       FernUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, category])
+  @@index([userId])
+  @@map("equipped_cosmetics")
+}
+
+model UserCloudConfiguration {
+  id                String   @id @default(uuid())
+  userId            String   @unique
+  isEnabled         Boolean  @default(false)
+  currentRevisionId String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user              FernUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_cloud_configurations")
+}
+
+model SyncRevision {
+  id               String   @id @default(uuid())
+  userId           String
+  revisionNumber   Int
+  parentRevisionId String?
+  configPayload    String   // JSON string of sanitized settings
+  checksum         String   // SHA-256
+  sizeBytes        Int
+  clientVersion    String   @default("1.0.0")
+  description      String?
+  createdAt        DateTime @default(now())
+
+  user             FernUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sync_revisions")
+}
+
+model AuditEvent {
+  id        String   @id @default(uuid())
+  userId    String?
+  eventType String   // e.g. "AUTH_LOGIN_SUCCESS", "AUTH_PASSWORD_RESET"
+  severity  String   @default("INFO") // INFO | WARN | SECURITY
+  ipAddress String?
+  userAgent String?
+  metadata  String?
+  createdAt DateTime @default(now())
+
+  user      FernUser? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([eventType])
+  @@map("audit_events")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String   // friend_request | friend_accepted | friend_online | etc.
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  actionUrl String?
+  metadata  String?
+  createdAt DateTime @default(now())
+
+  user      FernUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("user_notifications")
+}

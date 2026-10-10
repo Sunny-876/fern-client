@@ -1,0 +1,54 @@
+{
+  "name": "Fern Client",
+  "slug": "fern-client",
+  "version": {
+    "launcher": "1.0.0",
+    "client": "1.0.0",
+    "targetMinecraft": "1.21.4"
+  },
+  "platform": "windows",
+  "architecture": "x64",
+  "minimumOS": "Windows 10 Version 1809 (Build 17763) or Windows 11",
+  "builtAt": "2026-10-10T08:34:34.222Z",
+  "distributables": {
+    "installer": {
+      "filename": "FernClientSetup.exe",
+      "format": "nsi",
+      "targetDirectory": "%LocalAppData%\\Programs\\Fern Client",
+      "createShortcuts": true,
+      "uninstallRegistryKey": "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\FernClient",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "portable": {
+      "filename": "FernClient-1.0.0-Portable.zip",
+      "format": "zip",
+      "sha256": "aca5ae20adbba76beefea614181f4014e3962f3a76265ab3a14c59efe1e72128",
+      "sizeBytes": 215454,
+      "limitations": [
+        "No Start Menu shortcuts created automatically",
+        "No Windows Add/Remove Programs registry registration",
+        "Data stored locally in ./data directory relative to executable"
+      ]
+    }
+  },
+  "security": {
+    "signed": true,
+    "signatureAlgorithm": "ed25519",
+    "publicKey": "FERN_RELEASE_PUBLIC_KEY",
+    "credentialVault": "FernSecureTokenStorage (AES-256-GCM / Windows Machine Key)"
+  },
+  "channels": {
+    "stable": {
+      "latestVersion": "1.0.0",
+      "updateUrl": "https://downloads.fernclient.net/dist/win/stable/"
+    },
+    "rc": {
+      "latestVersion": "1.0.0",
+      "updateUrl": "https://downloads.fernclient.net/dist/win/rc/"
+    },
+    "beta": {
+      "latestVersion": "1.0.0-beta.1",
+      "updateUrl": "https://downloads.fernclient.net/dist/win/beta/"
+    }
+  }
+}
