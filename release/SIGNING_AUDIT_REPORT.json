@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-10-10T10:22:59.818Z",
+  "timestamp": "2026-10-10T10:55:12.930Z",
   "azureCredentialsConfigured": false,
   "missingCredentials": [
     "AZURE_TENANT_ID",
@@ -17,8 +17,8 @@
       "isSigned": false,
       "status": "NotSigned",
       "statusMessage": "The file D:\\Fern Client\\release\\FernClientSetup.exe is not digitally signed. You cannot run this script on the current system. For more information about running scripts and setting execution policy, see about_Execution_Policies at https:/go.microsoft.com/fwlink/?LinkID=135170",
-      "sha256": "95235b5c0541d23ece41a39c66153ec2cc2f4a98a84bdbeb51468acfd3d15145",
-      "verifiedAt": "2026-10-10T10:22:59.818Z"
+      "sha256": "de2c2abb66d95400153efc76eea115d0cd3a8640083cc6edbae7c97c4730bf17",
+      "verifiedAt": "2026-10-10T10:55:12.929Z"
     }
   ]
 }

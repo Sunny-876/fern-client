@@ -1,6 +1,7 @@
 /**
  * Fern Client - Windows Release Engineering & Packaging Script
- * Generates portable distribution zip, compiles NSIS installer, and computes release checksums.
+ * Generates portable distribution zip, stages full standalone Electron runtime,
+ * compiles NSIS installer, and computes release checksums.
  */
 import * as fs from 'fs';
 import * as path from 'path';
@@ -15,6 +16,7 @@ const VERSION = '1.0.0';
 const RELEASE_DIR = path.join(ROOT_DIR, 'release');
 const PACKAGING_DIR = path.join(ROOT_DIR, 'packaging');
 const DIST_JSON_PATH = path.join(PACKAGING_DIR, 'distribution.json');
+const UNPACKED_DIR = path.join(RELEASE_DIR, 'win-unpacked');
 
 console.log(`[Release Builder] Packaging Fern Client v${VERSION} for Windows x64...`);
 
@@ -22,7 +24,7 @@ if (!fs.existsSync(RELEASE_DIR)) {
   fs.mkdirSync(RELEASE_DIR, { recursive: true });
 }
 
-// 1. Verify build artifacts exist
+// 1. Verify build artifacts and Electron runtime exist
 const requiredDirs = ['dist', 'dist-electron'];
 for (const dir of requiredDirs) {
   const dirPath = path.join(ROOT_DIR, dir);
@@ -30,6 +32,12 @@ for (const dir of requiredDirs) {
     console.error(`[Error] Required build directory "${dir}" missing. Run "npm run build" first.`);
     process.exit(1);
   }
+}
+
+const electronDistDir = path.join(ROOT_DIR, 'node_modules', 'electron', 'dist');
+if (!fs.existsSync(electronDistDir)) {
+  console.error(`[Error] Electron runtime missing at "${electronDistDir}". Run "npm install" first.`);
+  process.exit(1);
 }
 
 // 2. Create Portable Distribution Bundle
@@ -89,7 +97,59 @@ if (fs.existsSync(portableZipPath) && !process.env.REBUILD_PORTABLE) {
   }
 }
 
-// 3. Compile Production Windows NSIS Installer (FernClientSetup.exe)
+// 3. Stage Standalone Electron Application in release/win-unpacked
+console.log(`[Release Builder] Staging self-contained Windows application in ${UNPACKED_DIR}...`);
+if (fs.existsSync(UNPACKED_DIR)) {
+  fs.rmSync(UNPACKED_DIR, { recursive: true, force: true });
+}
+fs.mkdirSync(UNPACKED_DIR, { recursive: true });
+
+// Copy entire Electron runtime
+fs.cpSync(electronDistDir, UNPACKED_DIR, { recursive: true });
+
+// Rename electron.exe -> FernClient.exe
+const stagedElectronExe = path.join(UNPACKED_DIR, 'electron.exe');
+const stagedAppExe = path.join(UNPACKED_DIR, 'FernClient.exe');
+if (fs.existsSync(stagedElectronExe)) {
+  fs.renameSync(stagedElectronExe, stagedAppExe);
+}
+
+// Configure resources/app
+const resourcesDir = path.join(UNPACKED_DIR, 'resources');
+const defaultAppAsar = path.join(resourcesDir, 'default_app.asar');
+if (fs.existsSync(defaultAppAsar)) {
+  fs.unlinkSync(defaultAppAsar);
+}
+
+const appDir = path.join(resourcesDir, 'app');
+fs.mkdirSync(appDir, { recursive: true });
+
+// Write application package.json
+fs.writeFileSync(
+  path.join(appDir, 'package.json'),
+  JSON.stringify(
+    {
+      name: 'fern-client',
+      version: VERSION,
+      main: 'dist-electron/main.cjs',
+    },
+    null,
+    2
+  )
+);
+
+// Copy production UI and main/preload scripts into resources/app
+fs.cpSync(path.join(ROOT_DIR, 'dist'), path.join(appDir, 'dist'), { recursive: true });
+fs.cpSync(path.join(ROOT_DIR, 'dist-electron'), path.join(appDir, 'dist-electron'), { recursive: true });
+
+// Also preserve top-level dist, dist-electron and FernClient.bat for backward compatibility
+fs.cpSync(path.join(ROOT_DIR, 'dist'), path.join(UNPACKED_DIR, 'dist'), { recursive: true });
+fs.cpSync(path.join(ROOT_DIR, 'dist-electron'), path.join(UNPACKED_DIR, 'dist-electron'), { recursive: true });
+fs.cpSync(path.join(PACKAGING_DIR, 'FernClient.bat'), path.join(UNPACKED_DIR, 'FernClient.bat'));
+
+console.log(`[Release Builder] Standalone Windows application staged successfully.`);
+
+// 4. Compile Production Windows NSIS Installer (FernClientSetup.exe)
 function findMakensis() {
   const candidatePaths = [
     'makensis',
@@ -109,19 +169,24 @@ function findMakensis() {
 const installerPath = path.join(RELEASE_DIR, 'FernClientSetup.exe');
 const makensisPath = findMakensis();
 
-if (makensisPath) {
-  console.log(`[Release Builder] Found NSIS compiler at "${makensisPath}". Compiling FernClientSetup.exe...`);
-  try {
-    execSync(`"${makensisPath}" "installer.nsi"`, { cwd: PACKAGING_DIR, stdio: 'inherit' });
-    console.log(`[Release Builder] Windows installer created successfully at: ${installerPath}`);
-  } catch (err) {
-    console.error(`[Error] NSIS compilation failed: ${err.message}`);
-  }
-} else {
-  console.warn(`[Warning] makensis not found on system. Skipping NSIS installer compilation.`);
+if (!makensisPath) {
+  console.error(`[Error] makensis compiler not found on system. Cannot build installer.`);
+  process.exit(1);
 }
 
-// 4. Compute Checksums & Update Metadata
+console.log(`[Release Builder] Found NSIS compiler at "${makensisPath}". Compiling FernClientSetup.exe...`);
+try {
+  execSync(`"${makensisPath}" "installer.nsi"`, { cwd: PACKAGING_DIR, stdio: 'inherit' });
+  if (!fs.existsSync(installerPath) || fs.statSync(installerPath).size === 0) {
+    throw new Error('Installer file was not created or has 0 bytes.');
+  }
+  console.log(`[Release Builder] Windows installer created successfully at: ${installerPath}`);
+} catch (err) {
+  console.error(`[Error] NSIS compilation failed: ${err.message}`);
+  process.exit(1);
+}
+
+// 5. Compute Checksums & Update Metadata
 function computeSha256(filePath) {
   if (!fs.existsSync(filePath)) return null;
   const data = fs.readFileSync(filePath);
@@ -133,7 +198,7 @@ const installerSha256 = computeSha256(installerPath) || 'simulated_installer_sha
 const installerSizeBytes = fs.existsSync(installerPath) ? fs.statSync(installerPath).size : 0;
 const portableSizeBytes = fs.existsSync(portableZipPath) ? fs.statSync(portableZipPath).size : 0;
 
-// 5. Update distribution.json
+// 6. Update distribution.json
 const distMetadata = {
   name: 'Fern Client',
   slug: 'fern-client',
@@ -206,5 +271,27 @@ if (fs.existsSync(portableZipPath)) {
   sumsLines.push(`${portableSha256}  ${portableName}`);
 }
 fs.writeFileSync(path.join(RELEASE_DIR, 'SHA256SUMS.txt'), sumsLines.join('\r\n') + '\r\n', 'utf-8');
+
+// Update release-manifest.json if it exists
+const manifestPath = path.join(RELEASE_DIR, 'release-manifest.json');
+if (fs.existsSync(manifestPath)) {
+  try {
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
+    for (const art of manifest.artifacts) {
+      if (art.name === 'FernClientSetup.exe') {
+        art.sha256 = installerSha256;
+        art.sizeBytes = installerSizeBytes;
+      } else if (art.name === portableName) {
+        art.sha256 = portableSha256;
+        art.sizeBytes = portableSizeBytes;
+      }
+    }
+    const sumsFileHash = computeSha256(path.join(RELEASE_DIR, 'SHA256SUMS.txt'));
+    manifest.checksumManifestSha256 = sumsFileHash;
+    fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf-8');
+  } catch (e) {
+    console.warn(`[Warning] Failed to update release-manifest.json: ${e.message}`);
+  }
+}
 
 console.log('[Release Builder] Packaging and distribution metadata generated successfully.');

@@ -1,2 +1,2 @@
 aca5ae20adbba76beefea614181f4014e3962f3a76265ab3a14c59efe1e72128  FernClient-1.0.0-Portable.zip
-95235b5c0541d23ece41a39c66153ec2cc2f4a98a84bdbeb51468acfd3d15145  FernClientSetup.exe
+de2c2abb66d95400153efc76eea115d0cd3a8640083cc6edbae7c97c4730bf17  FernClientSetup.exe

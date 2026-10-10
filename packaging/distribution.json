@@ -9,7 +9,7 @@
   "platform": "windows",
   "architecture": "x64",
   "minimumOS": "Windows 10 Version 1809 (Build 17763) or Windows 11",
-  "builtAt": "2026-10-10T09:34:18.908Z",
+  "builtAt": "2026-10-10T10:54:06.568Z",
   "distributables": {
     "installer": {
       "filename": "FernClientSetup.exe",
@@ -17,8 +17,8 @@
       "targetDirectory": "%LocalAppData%\\Programs\\Fern Client",
       "createShortcuts": true,
       "uninstallRegistryKey": "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\FernClient",
-      "sha256": "95235b5c0541d23ece41a39c66153ec2cc2f4a98a84bdbeb51468acfd3d15145",
-      "sizeBytes": 292766
+      "sha256": "de2c2abb66d95400153efc76eea115d0cd3a8640083cc6edbae7c97c4730bf17",
+      "sizeBytes": 158160152
     },
     "portable": {
       "filename": "FernClient-1.0.0-Portable.zip",

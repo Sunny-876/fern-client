@@ -9,3 +9,4 @@ scratch/
 .DS_Store
 
 .vercel
+release/win-unpacked/

@@ -123,36 +123,38 @@ describe('Phase 25 — Windows Installer & Code Signing Pipeline', () => {
 
       const res = spawnSync(installerPath, ['/S', `/D=${testInstallDir}`], {
         stdio: 'ignore',
-        timeout: 20000,
+        timeout: 45000,
       });
 
       expect(res.status).toBe(0);
       expect(fs.existsSync(testInstallDir)).toBe(true);
 
+      const appExe = path.join(testInstallDir, 'FernClient.exe');
       const distDir = path.join(testInstallDir, 'dist');
       const distElectronDir = path.join(testInstallDir, 'dist-electron');
       const batLauncher = path.join(testInstallDir, 'FernClient.bat');
       const uninstaller = path.join(testInstallDir, 'Uninstall.exe');
 
+      expect(fs.existsSync(appExe)).toBe(true);
       expect(fs.existsSync(distDir)).toBe(true);
       expect(fs.existsSync(path.join(distDir, 'index.html'))).toBe(true);
       expect(fs.existsSync(distElectronDir)).toBe(true);
       expect(fs.existsSync(path.join(distElectronDir, 'main.cjs'))).toBe(true);
       expect(fs.existsSync(batLauncher)).toBe(true);
       expect(fs.existsSync(uninstaller)).toBe(true);
-    });
+    }, 60000);
 
     it('validates that installed FernClient.bat targets dist-electron\\main.cjs correctly', () => {
       if (process.platform !== 'win32') return;
 
       spawnSync(installerPath, ['/S', `/D=${testInstallDir}`], {
         stdio: 'ignore',
-        timeout: 20000,
+        timeout: 45000,
       });
 
       const batContent = fs.readFileSync(path.join(testInstallDir, 'FernClient.bat'), 'utf-8');
       expect(batContent).toContain('dist-electron\\main.cjs');
-    });
+    }, 60000);
   });
 
   describe('4. Upgrade Simulation & User Data Preservation', () => {
@@ -162,7 +164,7 @@ describe('Phase 25 — Windows Installer & Code Signing Pipeline', () => {
       // 1. Initial Installation
       const initialInstall = spawnSync(installerPath, ['/S', `/D=${testInstallDir}`], {
         stdio: 'ignore',
-        timeout: 20000,
+        timeout: 45000,
       });
       expect(initialInstall.status).toBe(0);
 
@@ -176,7 +178,7 @@ describe('Phase 25 — Windows Installer & Code Signing Pipeline', () => {
       // 3. Perform Upgrade (Re-run installer over same target directory)
       const upgradeRes = spawnSync(installerPath, ['/S', `/D=${testInstallDir}`], {
         stdio: 'ignore',
-        timeout: 20000,
+        timeout: 45000,
       });
       expect(upgradeRes.status).toBe(0);
 
@@ -185,7 +187,7 @@ describe('Phase 25 — Windows Installer & Code Signing Pipeline', () => {
       expect(fs.existsSync(customConfigPath)).toBe(true);
       const savedUser = JSON.parse(fs.readFileSync(customConfigPath, 'utf-8'));
       expect(savedUser.username).toBe('FernTester');
-    });
+    }, 90000);
   });
 
   describe('5. Silent Uninstallation & Clean Removal', () => {
@@ -195,7 +197,7 @@ describe('Phase 25 — Windows Installer & Code Signing Pipeline', () => {
       // 1. Install
       spawnSync(installerPath, ['/S', `/D=${testInstallDir}`], {
         stdio: 'ignore',
-        timeout: 20000,
+        timeout: 45000,
       });
       expect(fs.existsSync(testInstallDir)).toBe(true);
 
@@ -205,13 +207,13 @@ describe('Phase 25 — Windows Installer & Code Signing Pipeline', () => {
       // 2. Run silent uninstaller
       const uninstRes = spawnSync(uninstaller, ['/S'], {
         stdio: 'ignore',
-        timeout: 15000,
+        timeout: 25000,
       });
       expect(uninstRes.status).toBe(0);
 
       // Allow brief moment for NSIS uninstaller process to delete its host directory
       let cleaned = false;
-      for (let i = 0; i < 15; i++) {
+      for (let i = 0; i < 20; i++) {
         await new Promise((resolve) => setTimeout(resolve, 300));
         if (!fs.existsSync(testInstallDir)) {
           cleaned = true;
@@ -219,7 +221,7 @@ describe('Phase 25 — Windows Installer & Code Signing Pipeline', () => {
         }
       }
       expect(cleaned).toBe(true);
-    });
+    }, 60000);
   });
 
   describe('6. Portable vs Installed Mode Coexistence', () => {
