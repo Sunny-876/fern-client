@@ -1,0 +1,33 @@
+name: "⚡ Compatibility / Launch Failure"
+description: "Report a crash related to mod loaders (Fabric, Forge, NeoForge), Java runtimes, or graphics drivers."
+title: "[Compatibility]: "
+labels: ["compatibility", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Report a specific compatibility issue with Minecraft versions, mod loaders, or system configurations in **Fern Client v1.0.0**.
+
+  - type: input
+    id: environment
+    attributes:
+      label: "System Environment"
+      placeholder: "e.g., Windows 10 x64, 16 GB RAM, NVIDIA RTX 3060 Driver 560.94"
+    validations:
+      required: true
+
+  - type: input
+    id: loader
+    attributes:
+      label: "Minecraft & Mod Loader"
+      placeholder: "e.g., Minecraft 1.21.1 / NeoForge 21.1.65"
+    validations:
+      required: true
+
+  - type: textarea
+    id: details
+    attributes:
+      label: "Crash Details or Error Diagnostic"
+      description: "Paste diagnostic code, mixin conflict, or JVM exit code."
+    validations:
+      required: true

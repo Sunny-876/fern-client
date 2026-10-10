@@ -368,7 +368,7 @@ export const SupportPage: React.FC = () => {
               You can also open or track issues directly on our public GitHub repository. Please review existing issues before creating duplicates.
             </p>
             <a
-              href="https://github.com/fernclient/fern/issues"
+              href="https://github.com/Sunny-876/fern-client/issues"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-gray-900 border border-gray-800 hover:border-gray-700 rounded-xl text-xs font-semibold text-white transition-all w-full justify-center"

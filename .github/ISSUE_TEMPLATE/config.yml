@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 Official Documentation
+    url: https://fernclient.net/#docs
+    about: Read installation, JVM tuning, and troubleshooting guides.
+  - name: 💬 Discord Community
+    url: https://discord.gg/fernclient
+    about: Join community discussion and general support channels.

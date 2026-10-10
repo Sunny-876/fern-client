@@ -246,7 +246,7 @@ export const DownloadPage: React.FC = () => {
         </div>
 
         {/* Verification & System Requirements Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.75rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.75rem', marginBottom: '2.5rem' }}>
           {/* Integrity Verification Guide */}
           <div className="card">
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem' }}>
@@ -297,6 +297,59 @@ export const DownloadPage: React.FC = () => {
               <li><strong>Graphics:</strong> {SYSTEM_REQUIREMENTS.graphics}</li>
               <li><strong>Java:</strong> {SYSTEM_REQUIREMENTS.java}</li>
             </ul>
+          </div>
+        </div>
+
+        {/* Installation & Trust Instructions Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.75rem' }}>
+          {/* Step-by-Step Installation */}
+          <div className="card">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem' }}>
+              <FileArchive size={20} color="#eab308" />
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#fff' }}>
+                Installation & Extraction Instructions
+              </h3>
+            </div>
+            <ol style={{ paddingLeft: '1.25rem', margin: 0, fontSize: '0.84rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '0.75rem', lineHeight: 1.5 }}>
+              <li>
+                <strong style={{ color: '#fff' }}>1. Download:</strong> Save <span className="code-inline">FernClient-1.0.0-Portable.zip</span> to your local storage.
+              </li>
+              <li>
+                <strong style={{ color: '#fff' }}>2. Verify:</strong> Run PowerShell <span className="code-inline">Get-FileHash</span> to confirm SHA-256 match.
+              </li>
+              <li>
+                <strong style={{ color: '#fff' }}>3. Extract:</strong> Unzip to a non-system folder (e.g., <span className="code-inline">C:\Games\FernClient</span>).
+              </li>
+              <li>
+                <strong style={{ color: '#fff' }}>4. Launch:</strong> Double-click <span className="code-inline">FernClient-Portable.bat</span>. Configurations are stored locally in <span className="code-inline">./data</span>.
+              </li>
+            </ol>
+          </div>
+
+          {/* Code Signing & Trust Transparency */}
+          <div className="card">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem' }}>
+              <Info size={20} color="#a855f7" />
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#fff' }}>
+                SmartScreen & Code Signing Disclosure
+              </h3>
+            </div>
+            <p style={{ fontSize: '0.84rem', color: 'var(--text-muted)', lineHeight: 1.55, marginBottom: '0.85rem' }}>
+              Fern Client v1.0.0 is an open-source community release distributed without a costly commercial Extended Validation (EV) certificate. Windows Defender SmartScreen displays a protective alert for new unsigned releases.
+            </p>
+            <p style={{ fontSize: '0.84rem', color: 'var(--text-muted)', lineHeight: 1.55, marginBottom: '1rem' }}>
+              To verify trust independently: review the source code on GitHub, check the SHA-256 checksum, then click <strong style={{ color: '#fff' }}>"More info" &rarr; "Run anyway"</strong> on Windows.
+            </p>
+            <div style={{ paddingTop: '0.5rem', borderTop: '1px solid var(--border-subtle)' }}>
+              <a
+                href="https://github.com/Sunny-876/fern-client/issues"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ fontSize: '0.82rem', color: 'var(--accent-primary)', textDecoration: 'none', fontWeight: 600 }}
+              >
+                Need help or experiencing an issue? Report on GitHub &rarr;
+              </a>
+            </div>
           </div>
         </div>
       </div>

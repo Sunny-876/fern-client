@@ -1,0 +1,100 @@
+name: "🐛 Bug Report"
+description: "File an issue for an unexpected crash, installation failure, or launcher defect."
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting an issue with **Fern Client v1.0.0**!
+        Please fill out this form to help us diagnose and resolve the issue.
+
+  - type: input
+    id: version
+    attributes:
+      label: "Fern Client Version"
+      description: "Found in the bottom bar of the launcher or in portable.json."
+      placeholder: "e.g., v1.0.0 (Portable)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: package_type
+    attributes:
+      label: "Distribution Type"
+      options:
+        - "Portable ZIP (FernClient-1.0.0-Portable.zip)"
+        - "Other / Development Build"
+    validations:
+      required: true
+
+  - type: input
+    id: windows_version
+    attributes:
+      label: "Windows Version & Architecture"
+      description: "Run 'winver' in Windows to check your build number."
+      placeholder: "e.g., Windows 11 Pro 23H2 (Build 22631.3007) x64"
+    validations:
+      required: true
+
+  - type: input
+    id: minecraft_version
+    attributes:
+      label: "Minecraft Version & Mod Loader"
+      placeholder: "e.g., Minecraft 1.21.4 (Fabric 0.16.5) or 1.20.1 (Forge 47.3.0)"
+    validations:
+      required: true
+
+  - type: input
+    id: java_version
+    attributes:
+      label: "Java Runtime Version"
+      placeholder: "e.g., Eclipse Adoptium Temurin 21.0.4 x64"
+    validations:
+      required: false
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "Describe the Issue"
+      description: "A clear and concise description of what went wrong."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: "Steps to Reproduce"
+      description: "Step-by-step instructions to recreate the problem."
+      placeholder: |
+        1. Extract portable zip to D:\Games\FernClient
+        2. Double click FernClient-Portable.bat
+        3. Create installation for Minecraft 1.21.4 Fabric
+        4. Click Play
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: "Expected Behavior"
+      placeholder: "e.g., Game launches smoothly with Sodium and Fern HUD active."
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: "Actual Behavior"
+      placeholder: "e.g., Launcher stops at 65% with diagnostic code JAVA_RUNTIME_MISMATCH."
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: "Sanitized Logs or Crash Dump (Optional)"
+      description: "Paste relevant log snippets. Fern Client sanitizes access tokens automatically, but please verify no passwords or personal credentials are included."
+      render: shell
+    validations:
+      required: false
