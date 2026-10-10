@@ -159,13 +159,14 @@ export const DownloadPage: React.FC = () => {
             </div>
 
             <a
-              href={release.artifacts.installer.downloadUrl}
-              download
+              href="https://github.com/Sunny-876/fern-client/releases/tag/v1.0.0"
+              target="_blank"
+              rel="noopener noreferrer"
               className="btn-primary"
               style={{ width: '100%', padding: '0.85rem' }}
             >
               <Download size={18} />
-              <span>Download Installer (.exe)</span>
+              <span>Download from GitHub</span>
             </a>
           </div>
 
@@ -255,25 +256,41 @@ export const DownloadPage: React.FC = () => {
                 Cryptographic Verification
               </h3>
             </div>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: '1.25rem' }}>
-              To verify that your downloaded binary has not been altered, run this command in Windows PowerShell:
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: '1rem' }}>
+              To verify that your downloaded binary has not been tampered with, run these commands in Windows PowerShell:
             </p>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginBottom: '0.25rem', fontWeight: 600 }}>Installer Verification:</div>
             <div
               style={{
                 background: '#090d14',
-                padding: '0.85rem',
+                padding: '0.75rem',
                 borderRadius: '8px',
                 fontFamily: 'var(--font-mono)',
-                fontSize: '0.78rem',
+                fontSize: '0.76rem',
                 color: '#4ade80',
                 marginBottom: '0.75rem',
                 border: '1px solid var(--border-subtle)',
               }}
             >
+              Get-FileHash -Path .\FernClientSetup.exe -Algorithm SHA256
+            </div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginBottom: '0.25rem', fontWeight: 600 }}>Portable Verification:</div>
+            <div
+              style={{
+                background: '#090d14',
+                padding: '0.75rem',
+                borderRadius: '8px',
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.76rem',
+                color: '#4ade80',
+                marginBottom: '1rem',
+                border: '1px solid var(--border-subtle)',
+              }}
+            >
               Get-FileHash -Path .\FernClient-1.0.0-Portable.zip -Algorithm SHA256
             </div>
-            <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)', lineHeight: 1.5, marginBottom: '0.75rem' }}>
-              <strong>Signing Status:</strong> Portable build is self-contained and unsigned (Windows SmartScreen prompt may appear on initial launch). Integrity is verified via SHA-256 and Ed25519 manifests.
+            <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)', lineHeight: 1.5, marginBottom: '0.5rem' }}>
+              <strong>Signing Status:</strong> Build artifacts are verified via SHA-256 and Ed25519 manifests. Azure Trusted Signing Authenticode pipeline is configured and ready for production credential deployment.
             </div>
             <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)', lineHeight: 1.5 }}>
               Signed with: <span className="code-inline">{release.signatureAlgorithm}</span>
@@ -307,23 +324,28 @@ export const DownloadPage: React.FC = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem' }}>
               <FileArchive size={20} color="#eab308" />
               <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#fff' }}>
-                Installation & Extraction Instructions
+                Installation Options & Instructions
               </h3>
             </div>
-            <ol style={{ paddingLeft: '1.25rem', margin: 0, fontSize: '0.84rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '0.75rem', lineHeight: 1.5 }}>
-              <li>
-                <strong style={{ color: '#fff' }}>1. Download:</strong> Save <span className="code-inline">FernClient-1.0.0-Portable.zip</span> to your local storage.
-              </li>
-              <li>
-                <strong style={{ color: '#fff' }}>2. Verify:</strong> Run PowerShell <span className="code-inline">Get-FileHash</span> to confirm SHA-256 match.
-              </li>
-              <li>
-                <strong style={{ color: '#fff' }}>3. Extract:</strong> Unzip to a non-system folder (e.g., <span className="code-inline">C:\Games\FernClient</span>).
-              </li>
-              <li>
-                <strong style={{ color: '#fff' }}>4. Launch:</strong> Double-click <span className="code-inline">FernClient-Portable.bat</span>. Configurations are stored locally in <span className="code-inline">./data</span>.
-              </li>
-            </ol>
+            <div style={{ fontSize: '0.84rem', color: 'var(--text-muted)', lineHeight: 1.55, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <div>
+                <strong style={{ color: '#fff' }}>Option A: Windows Installer (Setup.exe)</strong>
+                <ol style={{ paddingLeft: '1.25rem', marginTop: '0.35rem', marginBottom: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                  <li>Run <span className="code-inline">FernClientSetup.exe</span> (silent install via <span className="code-inline">/S</span>).</li>
+                  <li>Installs to <span className="code-inline">%LocalAppData%\Programs\Fern Client</span> without requiring administrator rights.</li>
+                  <li>Creates Start Menu and Desktop shortcuts, and registers standard Windows Add/Remove Programs entry.</li>
+                  <li>User settings and accounts in <span className="code-inline">%AppData%\Fern Client</span> are preserved across upgrades.</li>
+                  <li>Clean uninstaller is provided in <span className="code-inline">Settings &gt; Apps &gt; Installed apps</span> or directly via <span className="code-inline">Uninstall.exe</span>.</li>
+                </ol>
+              </div>
+              <div>
+                <strong style={{ color: '#fff' }}>Option B: Portable ZIP</strong>
+                <ol style={{ paddingLeft: '1.25rem', marginTop: '0.35rem', marginBottom: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                  <li>Extract <span className="code-inline">FernClient-1.0.0-Portable.zip</span> to any folder or USB drive.</li>
+                  <li>Run <span className="code-inline">FernClient-Portable.bat</span>. All user profiles and logs remain isolated inside <span className="code-inline">./data</span> with zero registry changes.</li>
+                </ol>
+              </div>
+            </div>
           </div>
 
           {/* Code Signing & Trust Transparency */}
@@ -334,11 +356,15 @@ export const DownloadPage: React.FC = () => {
                 SmartScreen & Code Signing Disclosure
               </h3>
             </div>
-            <p style={{ fontSize: '0.84rem', color: 'var(--text-muted)', lineHeight: 1.55, marginBottom: '0.85rem' }}>
-              Fern Client v1.0.0 is an open-source community release distributed without a costly commercial Extended Validation (EV) certificate. Windows Defender SmartScreen displays a protective alert for new unsigned releases.
+            <p style={{ fontSize: '0.84rem', color: 'var(--text-muted)', lineHeight: 1.55, marginBottom: '0.75rem' }}>
+              Fern Client release builds are secured with SHA-256 integrity digests and Ed25519 publisher manifests.
+              The repository release pipeline incorporates Microsoft Azure Trusted Signing scaffolding for Authenticode certification.
+            </p>
+            <p style={{ fontSize: '0.84rem', color: 'var(--text-muted)', lineHeight: 1.55, marginBottom: '0.75rem' }}>
+              Until production signing credentials are authenticated in CI or download volume builds reputation, Windows Defender SmartScreen may display an initial protective dialog (<strong style={{ color: '#fff' }}>"Windows protected your PC"</strong>). Note that digital signing alone does not guarantee zero SmartScreen alerts—reputation is established progressively.
             </p>
             <p style={{ fontSize: '0.84rem', color: 'var(--text-muted)', lineHeight: 1.55, marginBottom: '1rem' }}>
-              To verify trust independently: review the source code on GitHub, check the SHA-256 checksum, then click <strong style={{ color: '#fff' }}>"More info" &rarr; "Run anyway"</strong> on Windows.
+              To verify and proceed: verify the SHA-256 hash using the command above, click <strong style={{ color: '#fff' }}>"More info"</strong>, then select <strong style={{ color: '#fff' }}>"Run anyway"</strong>.
             </p>
             <div style={{ paddingTop: '0.5rem', borderTop: '1px solid var(--border-subtle)' }}>
               <a

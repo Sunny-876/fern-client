@@ -9,7 +9,7 @@
   "platform": "windows",
   "architecture": "x64",
   "minimumOS": "Windows 10 Version 1809 (Build 17763) or Windows 11",
-  "builtAt": "2026-10-10T08:34:34.222Z",
+  "builtAt": "2026-10-10T09:34:18.908Z",
   "distributables": {
     "installer": {
       "filename": "FernClientSetup.exe",
@@ -17,7 +17,8 @@
       "targetDirectory": "%LocalAppData%\\Programs\\Fern Client",
       "createShortcuts": true,
       "uninstallRegistryKey": "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\FernClient",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      "sha256": "95235b5c0541d23ece41a39c66153ec2cc2f4a98a84bdbeb51468acfd3d15145",
+      "sizeBytes": 292766
     },
     "portable": {
       "filename": "FernClient-1.0.0-Portable.zip",
@@ -35,7 +36,12 @@
     "signed": true,
     "signatureAlgorithm": "ed25519",
     "publicKey": "FERN_RELEASE_PUBLIC_KEY",
-    "credentialVault": "FernSecureTokenStorage (AES-256-GCM / Windows Machine Key)"
+    "credentialVault": "FernSecureTokenStorage (AES-256-GCM / Windows Machine Key)",
+    "authenticode": {
+      "signed": false,
+      "provider": "Azure Trusted Signing",
+      "status": "AWAITING_AZURE_CREDENTIALS"
+    }
   },
   "channels": {
     "stable": {

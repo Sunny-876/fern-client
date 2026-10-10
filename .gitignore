@@ -7,3 +7,5 @@ scratch/
 .idea/
 *.log
 .DS_Store
+
+.vercel

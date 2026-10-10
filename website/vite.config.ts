@@ -4,7 +4,7 @@ import * as path from 'path';
 
 export default defineConfig({
   root: path.resolve(import.meta.dirname),
-  base: './',
+  base: '/',
   plugins: [react()],
   resolve: {
     alias: {

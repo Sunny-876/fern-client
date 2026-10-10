@@ -1,17 +1,23 @@
 {
   "version": "1.0.0",
   "channel": "stable",
-  "buildNumber": 1791621704566,
-  "releasedAt": "2026-10-10T08:41:44.566Z",
+  "buildNumber": 1791627782299,
+  "releasedAt": "2026-10-10T10:23:02.299Z",
   "artifacts": [
     {
       "name": "FernClient-1.0.0-Portable.zip",
-      "path": "release\\FernClient-1.0.0-Portable.zip",
+      "path": "D:\\Fern Client\\release\\FernClient-1.0.0-Portable.zip",
       "sha256": "aca5ae20adbba76beefea614181f4014e3962f3a76265ab3a14c59efe1e72128",
       "sizeBytes": 215454
+    },
+    {
+      "name": "FernClientSetup.exe",
+      "path": "D:\\Fern Client\\release\\FernClientSetup.exe",
+      "sha256": "95235b5c0541d23ece41a39c66153ec2cc2f4a98a84bdbeb51468acfd3d15145",
+      "sizeBytes": 292766
     }
   ],
-  "checksumManifestSha256": "ec8c59efee70e43830d5da02a3ad1bc991405d3bf959f6f0e8025c2b1ecda56c",
+  "checksumManifestSha256": "c3d9c8396fad4434b0d9d59c7ee38857aea86b4cbfe56c203f3f9d3ebda770f2",
   "rollbackPlan": {
     "previousVersion": "1.0.0-beta.0",
     "rollbackUrl": "https://downloads.fernclient.net/dist/win/stable/FernClient-1.0.0-beta.0-Portable.zip",

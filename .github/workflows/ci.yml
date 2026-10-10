@@ -81,18 +81,29 @@ jobs:
       - name: Build all components
         run: npm run build
 
-      - name: Package Windows portable distribution
+      - name: Package Windows portable distribution & installer
         run: npm run package:win
 
-      - name: Verify release directory artifacts
+      - name: Run Authenticode signature audit check
+        run: npm run sign:win
+
+      - name: Verify release directory artifacts & installer
         shell: pwsh
         run: |
           if (-not (Test-Path "release/FernClient-1.0.0-Portable.zip")) {
             Write-Error "Release artifact FernClient-1.0.0-Portable.zip was not generated!"
             exit 1
           }
+          if (-not (Test-Path "release/FernClientSetup.exe")) {
+            Write-Error "Release artifact FernClientSetup.exe was not generated!"
+            exit 1
+          }
           if (-not (Test-Path "release/SHA256SUMS.txt")) {
             Write-Error "Checksum manifest SHA256SUMS.txt was not generated!"
             exit 1
           }
-          Write-Host "Windows build and packaging verified successfully."
+          if (-not (Test-Path "release/SIGNING_AUDIT_REPORT.json")) {
+            Write-Error "Signature audit report was not generated!"
+            exit 1
+          }
+          Write-Host "Windows build, installer, and signature audit verified successfully."

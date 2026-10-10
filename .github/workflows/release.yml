@@ -45,13 +45,37 @@ jobs:
       - name: Compile production artifacts
         run: npm run build
 
-      - name: Generate Windows release package
-        run: npm run release
+      - name: Generate Windows release package & installer
+        run: npm run package:win
+
+      - name: Azure Trusted Signing (Authenticode)
+        if: env.AZURE_CLIENT_ID != ''
+        uses: azure/trusted-signing-action@v0.4.0
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        with:
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          endpoint: 'https://weu.codesigning.azure.net'
+          trusted-signing-account-name: ${{ secrets.AZURE_TRUSTED_SIGNING_ACCOUNT }}
+          certificate-profile-name: ${{ secrets.AZURE_CERT_PROFILE_NAME }}
+          files: 'release/FernClientSetup.exe'
+          file-digest: 'SHA256'
+          timestamp-rfc3161: 'http://timestamp.acs.microsoft.com'
+          timestamp-digest: 'SHA256'
+
+      - name: Verify Signatures and Generate Final Manifests
+        env:
+          REQUIRE_CODE_SIGNING: ${{ github.event.inputs.require_signing || 'false' }}
+        run: |
+          npm run sign:win
+          node -e "import('./scripts/release-pipeline.ts').then(m => new m.ReleasePipeline().buildReleaseManifest('1.0.0', './release'))"
 
       - name: Verify checksum integrity
         shell: pwsh
         run: |
-          Get-FileHash -Algorithm SHA256 (Get-ChildItem release/*.zip) | Format-List
+          Get-FileHash -Algorithm SHA256 (Get-ChildItem release/*.zip, release/*.exe) | Format-List
           Get-Content release/SHA256SUMS.txt
 
       - name: Upload release artifacts
@@ -96,6 +120,8 @@ jobs:
           draft: false
           files: |
             release-artifacts/*.zip
+            release-artifacts/*.exe
             release-artifacts/SHA256SUMS.txt
             release-artifacts/*.json
+            release-artifacts/SIGNING_AUDIT_REPORT.json
           generate_release_notes: true

@@ -6,10 +6,10 @@ This backlog documents verified technical improvements, security hardening items
 
 ## 🎯 Prioritized Backlog Matrix
 
-| Priority | Category | Item | Rationale & Objective | Complexity |
+| Priority | Category | Item | Rationale & Objective | Status (Phase 25) |
 | :---: | :--- | :--- | :--- | :---: |
-| **P1** | **Trust & Security** | Authenticode Code Signing Pipeline | Acquire and integrate Azure Trusted Signing / EV Certificate into GitHub Actions to eliminate Windows SmartScreen warnings on download. | High |
-| **P1** | **Installation** | NSIS Installer Executable Production Build | Transition from staged NSIS script template to packaged setup binary (`FernClientSetup.exe`) with signed uninstaller and optional Start Menu shortcuts. | Medium |
+| **P1** | **Trust & Security** | Authenticode Code Signing Pipeline | Integrated Azure Trusted Signing scaffolding & Authenticode verification into GitHub Actions release workflow. Awaiting maintainer Azure credential provisioning. | **Implemented & Scaffolding Verified** |
+| **P1** | **Installation** | NSIS Installer Executable Production Build | Packaged and validated production setup binary (`FernClientSetup.exe`) with silent switches, clean uninstaller, shortcut integration, and user-data preservation. | **Completed & Tested** |
 | **P2** | **Compatibility** | NeoForge 21.4.x Dynamic Launch Manifest Parsing | Expand manifest compatibility tests for newly published weekly NeoForge revisions on Minecraft 1.21.4. | Medium |
 | **P2** | **Usability** | Automated Java Download Wizard | Provide automated 1-click download of Eclipse Adoptium Temurin OpenJDK 21 LTS if no local Java runtime is found on a user's PC. | Medium |
 | **P2** | **Resilience** | Mirror Fallback for Mojang Version Manifests | Add redundant mirror endpoints if `piston-meta.mojang.com` experiences regional ISP throttling or DNS failures. | Low |
