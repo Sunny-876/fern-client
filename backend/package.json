@@ -15,11 +15,11 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@nestjs/common": "^11.0.1",
-    "@nestjs/core": "^11.0.1",
-    "@nestjs/platform-express": "^11.0.1",
-    "@nestjs/platform-socket.io": "^11.0.1",
-    "@nestjs/websockets": "^11.0.1",
+    "@nestjs/common": "^12.1.2",
+    "@nestjs/core": "^12.1.2",
+    "@nestjs/platform-express": "^12.1.2",
+    "@nestjs/platform-socket.io": "^12.1.2",
+    "@nestjs/websockets": "^12.1.2",
     "@prisma/client": "^6.4.1",
     "argon2": "^0.41.1",
     "class-transformer": "^0.5.1",
