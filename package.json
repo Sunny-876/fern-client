@@ -35,9 +35,9 @@
   "author": "Fern Client Team",
   "license": "MIT",
   "dependencies": {
-    "lucide-react": "^1.53.0",
-    "react": "^19.3.0",
-    "react-dom": "^19.3.0"
+    "lucide-react": "^1.57.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
   },
   "devDependencies": {
     "@nsis-u/makensis": "^3.3.0",
